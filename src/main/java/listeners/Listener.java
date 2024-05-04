@@ -1,6 +1,9 @@
 package listeners;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
+
 import org.openqa.selenium.WebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
@@ -9,6 +12,10 @@ import org.testng.ITestResult;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
+
+import utils.Constants;
+import utils.Reports;
+import utils.TakeScreenshot;
 
 
 public class Listener implements ITestListener{
@@ -21,7 +28,7 @@ public class Listener implements ITestListener{
 	public void onStart(ITestContext context) {
 		System.out.println("--------STARTING TEST EXECUTION--------");
 		//Cleaning Up Screenshot folder from previous run
-		File screenshotDir = new File(utils.Constants.SCREESHOT_FOLDER);
+		File screenshotDir = new File(Constants.SCREESHOT_FOLDER);
 		if(!screenshotDir.exists()) {
 			screenshotDir.getAbsoluteFile().mkdir();
 		}
@@ -30,7 +37,7 @@ public class Listener implements ITestListener{
 			file.delete();
 		}
 		System.out.println("--------CLEANED SCREENSHOT FOLDER--------");
-		report = utils.Reports.generateReports();
+		report = Reports.generateReports();
 	}
 
 	@Override
@@ -51,7 +58,7 @@ public class Listener implements ITestListener{
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
-		extentTest.addScreenCaptureFromPath(utils.TakeScreenshot.takesScreenshot(driver,methodName));
+		extentTest.addScreenCaptureFromPath(TakeScreenshot.takesScreenshot(driver,methodName));
 	}
 
 	@Override
@@ -63,7 +70,7 @@ public class Listener implements ITestListener{
 		} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
 		}
-		extentTest.addScreenCaptureFromPath(utils.TakeScreenshot.takesScreenshot(driver,methodName+"-Fail"));
+		extentTest.addScreenCaptureFromPath(TakeScreenshot.takesScreenshot(driver,methodName+"-Fail"));
 	}
 
 	@Override
@@ -84,6 +91,12 @@ public class Listener implements ITestListener{
 	@Override
 	public void onFinish(ITestContext context) {
 		report.flush();
+		File file = new File(Constants.REPORT_FOLDER);
+		try {
+			Desktop.getDesktop().browse(file.toURI());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		System.out.println("--------TEST EXECUTION COMPLETED--------");
 	}
 
